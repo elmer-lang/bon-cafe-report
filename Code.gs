@@ -9,9 +9,10 @@
 // --- CONFIGURATION ---
 const CONFIG = {
   SHEET_ID: "1Ehk-uAUMzDsBQX1ptCBU2Vn_CRCzVbYKFs-gO0SF5k8", 
-  DRIVE_FOLDER_ID: "1M0xyDZGceyjFVVDRL2bJ2-4amJliJ1av",
+  DRIVE_FOLDER_ID: "1M0xyDZGceyjFVVDRL2bJ2-4amJliJ1av", 
   ADMIN_EMAIL: "elmer@bon.com.sa",
-  GITHUB_URL: "https://elmer-lang.github.io/Management-Report/" // UPDATE THIS LINK
+  // This is the correct link for your source code:
+  GITHUB_URL: "https://github.com/elmer-lang/Management-Report" 
 };
 
 // --- WEB APP SERVING ---
