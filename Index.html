@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BonCafeReport</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Theme Colors */
+    :root { --bon-orange: #ff6600; --bon-dark: #1a1a1a; --bon-grey: #f3f4f6; }
+    .bg-bon-orange { background-color: var(--bon-orange); }
+    .text-bon-orange { color: var(--bon-orange); }
+    .border-bon-orange { border-color: var(--bon-orange); }
+    .hover-bon-orange:hover { background-color: #e65c00; }
+    
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    /* Transitions */
+    .sidebar-transition { transition: transform 0.3s ease-in-out; }
+    .hidden-sidebar { transform: translateX(-100%); }
+    
+    /* Input Fields */
+    .input-field {
+      width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; 
+      border-radius: 0.375rem; outline: none; transition: all 0.2s;
+    }
+    .input-field:focus { border-color: var(--bon-orange); box-shadow: 0 0 0 2px rgba(255,102,0,0.2); }
+    
+    /* RTL Support */
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .fa-chevron-right { transform: rotate(180deg); }
+    .rtl .ml-2 { margin-left: 0; margin-right: 0.5rem; }
+    .rtl .mr-2 { margin-right: 0; margin-left: 0.5rem; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 h-screen overflow-hidden flex flex-col">
+
+  <!-- ==================== AUTHENTICATION SCREEN ==================== -->
+  <div id="authContainer" class="fixed inset-0 z-50 flex items-center justify-center bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80');">
+    <div class="absolute inset-0 bg-black opacity-60"></div>
+    
+    <div class="relative bg-white p-8 rounded-xl shadow-2xl w-full max-w-md backdrop-blur-sm bg-opacity-95 transform transition-all border-t-4 border-bon-orange">
+      <div class="text-center mb-8">
+        <div class="inline-block p-3 rounded-full bg-orange-100 mb-3 text-bon-orange">
+          <i class="fas fa-mug-hot fa-2x"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800">Bon Café</h1>
+        <p class="text-sm text-gray-500 font-medium tracking-wide">MANAGEMENT REPORT SYSTEM</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="space-y-5">
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">ID Number</label>
+          <div class="relative">
+            <i class="fas fa-id-card absolute left-3 top-3 text-gray-400"></i>
+            <input type="text" id="loginId" class="input-field pl-10" placeholder="Enter ID" required>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Password</label>
+          <div class="relative">
+            <i class="fas fa-lock absolute left-3 top-3 text-gray-400"></i>
+            <input type="password" id="loginPass" class="input-field pl-10" placeholder="••••••••" required>
+            <i class="fas fa-eye absolute right-3 top-3 cursor-pointer text-gray-400 hover:text-bon-orange" onclick="togglePass('loginPass')"></i>
+          </div>
+        </div>
+        <button type="submit" class="w-full bg-bon-orange text-white font-bold py-3 rounded-lg hover:bg-orange-700 transition shadow-lg transform hover:-translate-y-1">LOGIN</button>
+        <div class="flex justify-between text-sm pt-2">
+          <a href="#" onclick="showForgot()" class="text-gray-500 hover:text-gray-800">Forgot Password?</a>
+          <a href="#" onclick="showRegister()" class="text-bon-orange font-bold hover:underline">Create Account</a>
+        </div>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="space-y-3 hidden">
+        <h2 class="text-center text-xl font-bold mb-4">Register</h2>
+        <input type="email" id="regEmail" placeholder="Email Address" class="input-field" required>
+        <input type="text" id="regId" placeholder="ID Number" class="input-field" required>
+        <input type="text" id="regName" placeholder="Full Name" class="input-field" required>
+        <select id="regPos" class="input-field" required>
+          <option value="">Select Position</option>
+          <option>Area Manager</option><option>Field Trainer</option><option>Supervisor</option>
+        </select>
+        <select id="regArea" class="input-field" required>
+          <option value="">Select Area</option>
+          <option>North Jeddah District 1</option><option>North Jeddah District 2</option>
+          <option>Central East Jeddah</option><option>Central West Jeddah</option>
+          <option>South Jeddah</option><option>West Makkah</option>
+          <option>East Makkah</option><option>Taif</option><option>Al-Madina</option>
+        </select>
+        <div class="relative">
+          <input type="password" id="regPass" placeholder="Password" class="input-field" required>
+        </div>
+        <button type="submit" class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-black transition">REGISTER</button>
+        <button type="button" onclick="showLogin()" class="w-full text-sm text-gray-500 mt-2 hover:text-bon-orange"><i class="fas fa-arrow-left"></i> Back to Login</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN DASHBOARD ==================== -->
+  <div id="appContainer" class="flex h-full hidden">
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-gray-900 text-white flex flex-col flex-shrink-0 sidebar-transition z-20 shadow-xl">
+      <div class="p-6 border-b border-gray-800 bg-gray-900">
+        <div class="flex items-center gap-3">
+           <div class="bg-bon-orange p-2 rounded-lg"><i class="fas fa-mug-hot fa-lg"></i></div>
+           <span class="text-xl font-bold tracking-tight">BonCafeReport</span>
+        </div>
+        <div class="mt-6 pl-1 border-l-2 border-bon-orange">
+          <p class="text-gray-400 text-xs uppercase tracking-wider">Welcome Back</p>
+          <p id="dispName" class="font-bold text-lg text-white truncate">User Name</p>
+          <div class="text-xs text-gray-400 mt-1 flex flex-col">
+            <span id="dispPos">Position</span>
+            <span id="dispArea" class="text-bon-orange">Area</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="flex-1 p-4 space-y-2 overflow-y-auto" id="navLinks">
+        <button onclick="navTo('checklist')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 flex items-center text-gray-300 hover:text-white transition group">
+          <i class="fas fa-clipboard-check w-8 text-center text-bon-orange group-hover:scale-110 transition"></i> <span class="ml-2 font-medium">Branch Visit Checklist</span>
+        </button>
+        <button onclick="navTo('status')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 flex items-center text-gray-300 hover:text-white transition group">
+          <i class="fas fa-chart-pie w-8 text-center text-bon-orange group-hover:scale-110 transition"></i> <span class="ml-2 font-medium">Team Leader Status</span>
+        </button>
+        <button onclick="navTo('dashboard')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 flex items-center text-gray-300 hover:text-white transition group">
+          <i class="fas fa-tachometer-alt w-8 text-center text-bon-orange group-hover:scale-110 transition"></i> <span class="ml-2 font-medium">Dashboard</span>
+        </button>
+      </nav>
+
+      <div class="p-4 bg-gray-900 border-t border-gray-800">
+        <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg flex items-center justify-center font-bold transition shadow-lg">
+          <i class="fas fa-sign-out-alt mr-2"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col bg-gray-50 overflow-hidden relative w-full">
+      <!-- Header -->
+      <header class="bg-white shadow-sm h-16 flex justify-between items-center px-6 z-10 flex-shrink-0">
+        <div class="flex items-center">
+          <button onclick="toggleSidebar()" class="text-gray-600 hover:text-bon-orange focus:outline-none mr-4 transition">
+            <i class="fas fa-bars fa-lg"></i>
+          </button>
+          <h1 class="text-lg font-bold text-gray-700 hidden md:block">Management Report | New Bon Café Co.</h1>
+        </div>
+        <div class="flex items-center gap-4">
+           <button onclick="toggleLang()" class="flex items-center text-sm font-medium text-gray-600 hover:text-bon-orange border px-3 py-1 rounded-full hover:bg-gray-50 transition">
+             <i class="fas fa-globe mr-2"></i> English / العربية
+           </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Content -->
+      <div id="contentArea" class="flex-1 overflow-auto p-4 md:p-8">
+        
+        <!-- === SCREEN 1: CHECKLIST === -->
+        <div id="screen-checklist" class="screen-view hidden max-w-5xl mx-auto">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+               <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-file-contract text-bon-orange mr-2"></i> Daily Branch Visit Report</h2>
+               <span class="bg-orange-100 text-bon-orange text-xs font-bold px-2 py-1 rounded">New Entry</span>
+            </div>
+            
+            <!-- Metadata Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 bg-gray-50 p-6 rounded-lg border border-gray-100">
+              <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Date</label>
+                <input type="text" id="chkDate" class="input-field bg-white" readonly>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Supervisor</label>
+                <input type="text" id="chkSuper" class="input-field bg-gray-200 text-gray-600 cursor-not-allowed" readonly>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Area</label>
+                <input type="text" id="chkArea" class="input-field bg-gray-200 text-gray-600 cursor-not-allowed" readonly>
+              </div>
+              <div class="md:col-span-1">
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Select Branch</label>
+                <select id="chkBranch" class="input-field bg-white border-l-4 border-l-bon-orange"></select>
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Select Team Leader</label>
+                <select id="chkTL" class="input-field bg-white"></select>
+              </div>
+            </div>
+
+            <!-- Special Hospital Question Container (Hidden by default) -->
+            <div id="hospitalSection" class="mb-6 hidden">
+               <!-- Populated via JS -->
+            </div>
+
+            <!-- Dynamic Questions -->
+            <div id="questionsContainer" class="space-y-8">
+               <div class="text-center py-10"><i class="fas fa-circle-notch fa-spin text-bon-orange fa-2x"></i><p class="mt-2 text-gray-500">Loading checklist...</p></div>
+            </div>
+
+            <!-- Staff & Compliance Section -->
+            <div class="mt-10 pt-6 border-t-2 border-dashed border-gray-200">
+              <h3 class="font-bold text-xl mb-4 text-gray-800 flex items-center">
+                <span class="bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-2"><i class="fas fa-users"></i></span> 
+                Staff & Compliance
+              </h3>
+              
+              <div class="bg-orange-50 p-6 rounded-lg border border-orange-100">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                  <input type="text" id="staffId" placeholder="ID Number" class="input-field md:col-span-1">
+                  <input type="text" id="staffName" placeholder="Staff Name" class="input-field md:col-span-3">
+                </div>
+                
+                <p class="text-xs font-bold text-gray-500 mb-2 uppercase">Violations / Observations:</p>
+                <div class="flex flex-wrap gap-3 mb-4 text-sm">
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border hover:border-bon-orange transition"><input type="checkbox" class="violation-chk mr-2" value="No Hairnet"> ❌ No Hairnet</label>
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border hover:border-bon-orange transition"><input type="checkbox" class="violation-chk mr-2" value="No Mask"> ❌ No Mask</label>
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border hover:border-bon-orange transition"><input type="checkbox" class="violation-chk mr-2" value="Untied Apron"> ❌ Untied Apron</label>
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border hover:border-bon-orange transition"><input type="checkbox" class="violation-chk mr-2" value="Untacked Polo Shirt"> ❌ Untacked Polo</label>
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border hover:border-bon-orange transition"><input type="checkbox" class="violation-chk mr-2" value="Non uniform Pants"> ❌ Non-uniform Pants</label>
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border hover:border-bon-orange transition"><input type="checkbox" class="violation-chk mr-2" value="Non-uniform shoes"> ❌ Non-uniform Shoes</label>
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border hover:border-bon-orange transition"><input type="checkbox" class="violation-chk mr-2" value="Long nails"> ❌ Long nails</label>
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border hover:border-bon-orange transition"><input type="checkbox" class="violation-chk mr-2" value="No underarm care"> ❌ No underarm care</label>
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border border-green-200 text-green-700 hover:bg-green-50 transition"><input type="checkbox" class="violation-chk mr-2" value="Good Hygiene"> ⭐ Good Hygiene</label>
+                  <label class="flex items-center cursor-pointer bg-white px-3 py-1 rounded border hover:border-bon-orange transition"><input type="checkbox" id="chkOther" class="mr-2" onchange="toggleOtherText(this)"> Others</label>
+                </div>
+                
+                <input type="text" id="staffOtherText" class="input-field text-sm hidden mb-4" placeholder="Specify other observation...">
+                
+                <div class="flex justify-end">
+                   <button onclick="addStaff()" class="bg-gray-800 text-white px-6 py-2 rounded-lg text-sm hover:bg-black transition shadow"><i class="fas fa-plus mr-1"></i> Add Staff Entry</button>
+                </div>
+              </div>
+
+              <!-- List -->
+              <div class="mt-4">
+                <ul id="staffList" class="space-y-2"></ul>
+              </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="mt-10 flex justify-end gap-3 border-t pt-6">
+              <button onclick="generatePDFPreview()" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 font-medium transition"><i class="fas fa-eye mr-2"></i> Preview</button>
+              <button onclick="submitReport()" class="bg-bon-orange text-white px-8 py-3 rounded-lg hover:bg-orange-700 font-bold shadow-lg transform hover:-translate-y-1 transition"><i class="fas fa-paper-plane mr-2"></i> Submit Report</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- === SCREEN 2: TL STATUS === -->
+        <div id="screen-status" class="screen-view hidden">
+           <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-200 mb-6">
+             <h2 class="text-2xl font-bold mb-6 text-gray-800">Team Leader Status</h2>
+             
+             <!-- Filters -->
+             <div class="flex flex-wrap gap-4 mb-8 bg-gray-50 p-4 rounded-lg">
+               <select id="fltArea" class="input-field w-full md:w-48 bg-white"><option value="">All Areas</option></select>
+               <input type="date" id="fltDateFrom" class="input-field w-full md:w-40 bg-white">
+               <input type="date" id="fltDateTo" class="input-field w-full md:w-40 bg-white">
+               <input type="text" id="fltID" placeholder="Search TL Name" class="input-field w-full md:w-48 bg-white">
+               <button onclick="filterReports()" class="bg-bon-orange text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-orange-700 transition">Filter</button>
+             </div>
+             
+             <!-- Graphs -->
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+               <div class="col-span-2 h-72 border border-gray-100 rounded-lg p-4 relative">
+                 <canvas id="rateChart"></canvas>
+               </div>
+               <div class="bg-gradient-to-br from-gray-800 to-black p-6 rounded-lg text-white flex flex-col justify-center items-center shadow-lg">
+                 <h3 class="text-6xl font-bold text-bon-orange mb-2" id="tlCount">0</h3>
+                 <p class="text-gray-400 font-medium tracking-wide">Unique Team Leaders</p>
+                 <div class="mt-4 text-sm text-gray-500">Based on selection</div>
+               </div>
+             </div>
+
+             <!-- Table -->
+             <div class="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+               <table class="w-full text-sm text-left text-gray-600">
+                 <thead class="text-xs text-white uppercase bg-gray-800">
+                   <tr>
+                     <th class="px-6 py-4">Date</th>
+                     <th class="px-6 py-4">Branch</th>
+                     <th class="px-6 py-4">Team Leader</th>
+                     <th class="px-6 py-4">Area</th>
+                     <th class="px-6 py-4 text-center">Violations</th>
+                     <th class="px-6 py-4 text-center">Rate</th>
+                   </tr>
+                 </thead>
+                 <tbody id="statusTableBody" class="divide-y divide-gray-100 bg-white"></tbody>
+               </table>
+             </div>
+             
+             <button onclick="printFilteredReport()" class="mt-6 bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition"><i class="fas fa-envelope mr-2"></i> Email This Report</button>
+           </div>
+        </div>
+
+        <!-- === SCREEN 3: DASHBOARD === -->
+        <div id="screen-dashboard" class="screen-view hidden">
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-gray-500 text-sm font-bold uppercase">Total Visits</p>
+                    <h3 class="text-3xl font-bold text-gray-800" id="visitCount">0</h3>
+                  </div>
+                  <div class="bg-blue-100 p-3 rounded-full text-blue-500"><i class="fas fa-clipboard-check fa-lg"></i></div>
+                </div>
+              </div>
+              <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-gray-500 text-sm font-bold uppercase">Unique Branches Visited</p>
+                    <h3 class="text-3xl font-bold text-gray-800" id="uniqueBranchCount">0</h3>
+                  </div>
+                  <div class="bg-green-100 p-3 rounded-full text-green-500"><i class="fas fa-store-alt fa-lg"></i></div>
+                </div>
+              </div>
+           </div>
+
+           <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+             <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Branch Visit History</h2>
+                <select id="dashBranch" onchange="filterDashboard()" class="input-field w-64 text-sm bg-gray-50"><option value="">All Branches</option></select>
+             </div>
+             <div class="overflow-x-auto">
+               <table class="w-full text-sm text-left text-gray-500">
+                 <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                   <tr><th class="px-4 py-3">Date</th><th>Branch</th><th>TL</th><th>Area</th><th>Violations</th><th>Rate</th></tr>
+                 </thead>
+                 <tbody id="dashTableBody" class="divide-y"></tbody>
+               </table>
+             </div>
+           </div>
+        </div>
+
+      </div>
+      
+      <!-- Footer -->
+      <footer class="bg-gray-200 text-center text-xs py-3 text-gray-500 border-t border-gray-300 flex justify-center gap-4 items-center">
+        <span>Created by Training-Coordinator | New Bon Café Co. Ltd.</span>
+        <a id="githubLink" href="#" target="_blank" class="text-gray-400 hover:text-black transition">
+            <i class="fab fa-github fa-lg"></i>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // --- Global State ---
+    let currentUser = null;
+    let staffData = [];
+    let appData = null; // Stores Questions, Branches, TLs
+    let reportsData = []; // Stores fetched reports
+    let myChart = null;
+
+    // --- UI Helpers ---
+    function togglePass(id) {
+      const x = document.getElementById(id);
+      x.type = x.type === "password" ? "text" : "password";
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      sb.classList.toggle('hidden-sidebar');
+      sb.classList.toggle('-ml-72'); // Tailwind negative margin
+    }
+
+    function toggleLang() {
+      const body = document.body;
+      if(body.classList.contains('rtl')) {
+        body.classList.remove('rtl');
+        body.dir = "ltr";
+      } else {
+        body.classList.add('rtl');
+        body.dir = "rtl";
+      }
+    }
+
+    function navTo(screen) {
+      // Update UI Tabs
+      document.querySelectorAll('.screen-view').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`screen-${screen}`).classList.remove('hidden');
+      
+      // Update Active State on Sidebar
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-gray-800', 'text-white'));
+      // (Simplified active state logic could be added here matching screen name)
+
+      // Screen specific loads
+      if(screen === 'checklist') loadChecklist();
+      if(screen === 'status' || screen === 'dashboard') loadReports();
+    }
+
+    // --- Authentication ---
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('loginId').value;
+      const pass = document.getElementById('loginPass').value;
+      
+      Swal.fire({title: 'Authenticating', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+      
+      google.script.run.withSuccessHandler(res => {
+        if(res.success) {
+          currentUser = res.user;
+          Swal.fire({
+            icon: 'success',
+            title: 'Welcome Back!',
+            text: res.message,
+            timer: 2000,
+            showConfirmButton: false
+          });
+          initApp();
+        } else {
+          Swal.fire('Login Failed', res.message, 'error');
+        }
+      }).loginUser(id, pass);
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = {
+        email: document.getElementById('regEmail').value,
+        id: document.getElementById('regId').value,
+        name: document.getElementById('regName').value,
+        position: document.getElementById('regPos').value,
+        area: document.getElementById('regArea').value,
+        password: document.getElementById('regPass').value
+      };
+      
+      Swal.fire({title: 'Registering', didOpen: () => Swal.showLoading()});
+      
+      google.script.run.withSuccessHandler(res => {
+        if(res.success) {
+          Swal.fire('Success', res.message, 'success');
+          showLogin();
+        } else {
+          Swal.fire('Error', res.message, 'error');
+        }
+      }).registerUser(form);
+    });
+
+    function showRegister() { document.getElementById('loginForm').parentElement.classList.add('hidden'); document.getElementById('registerForm').parentElement.classList.remove('hidden'); showRegisterUI(); }
+    function showLogin() { showLoginUI(); }
+    function showRegisterUI() { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); }
+    function showLoginUI() { document.getElementById('registerForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); }
+
+    function showForgot() {
+      Swal.fire({
+        title: 'Forgot Password',
+        input: 'text',
+        inputLabel: 'Enter your ID Number',
+        showCancelButton: true,
+        confirmButtonColor: '#ff6600',
+        confirmButtonText: 'Verify'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.showLoading();
+          google.script.run.withSuccessHandler(res => {
+            Swal.fire(res.success ? 'Sent' : 'Error', res.message, res.success ? 'success' : 'error');
+          }).forgotPassword(result.value);
+        }
+      });
+    }
+
+    function logout() {
+      google.script.run.withSuccessHandler(res => {
+        Swal.fire({
+          title: 'Logged Out',
+          text: res.message,
+          icon: 'info',
+          confirmButtonColor: '#ff6600'
+        }).then(() => {
+          location.reload();
+        });
+      }).logoutUser(currentUser.id);
+    }
+
+    function initApp() {
+      document.getElementById('authContainer').classList.add('hidden');
+      document.getElementById('appContainer').classList.remove('hidden');
+      
+      // Sidebar Info
+      document.getElementById('dispName').textContent = currentUser.name;
+      document.getElementById('dispPos').textContent = currentUser.position;
+      document.getElementById('dispArea').textContent = currentUser.area;
+      
+      // Set Github Link
+      google.script.run.withSuccessHandler(url => {
+          if(url && url.includes('http')) document.getElementById('githubLink').href = url;
+          else document.getElementById('githubLink').classList.add('hidden');
+      }).getGithubLink();
+
+      navTo('checklist');
+    }
+
+    // --- Checklist Logic ---
+    function loadChecklist() {
+      document.getElementById('chkDate').value = new Date().toLocaleDateString();
+      document.getElementById('chkSuper').value = currentUser.name;
+      document.getElementById('chkArea').value = currentUser.area;
+      
+      if(!appData) {
+        google.script.run.withSuccessHandler(data => {
+          appData = data;
+          
+          // Branches
+          const bSelect = document.getElementById('chkBranch');
+          bSelect.innerHTML = '<option value="">Select Branch</option>';
+          data.branches.forEach(b => bSelect.innerHTML += `<option>${b}</option>`);
+
+          // Team Leaders
+          const tlSelect = document.getElementById('chkTL');
+          tlSelect.innerHTML = '<option value="">Select Team Leader</option>';
+          data.teamLeaders.forEach(tl => tlSelect.innerHTML += `<option>${tl}</option>`);
+
+          // Render Standard Questions
+          renderQuestions(data.questions.filter(q => !q.isExtra));
+
+        }).getAppData(currentUser.area);
+      }
+    }
+
+    function renderQuestions(qs) {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+      
+      // Group by Category
+      const grouped = {};
+      qs.forEach(q => {
+        if(!grouped[q.category]) grouped[q.category] = [];
+        grouped[q.category].push(q);
+      });
+
+      // Special Check for Hospital Question
+      let hospitalQ = null;
+
+      for(let cat in grouped) {
+        // Icon Mapping (Simple)
+        let icon = 'fa-list';
+        if(cat.includes('Staff')) icon = 'fa-user-tie';
+        if(cat.includes('Hygiene')) icon = 'fa-pump-soap';
+        if(cat.includes('Product')) icon = 'fa-coffee';
+        if(cat.includes('Machine')) icon = 'fa-cogs';
+
+        const catDiv = document.createElement('div');
+        catDiv.className = "bg-white p-5 rounded-lg border border-gray-100 shadow-sm";
+        catDiv.innerHTML = `<h3 class="font-bold text-lg text-bon-orange mb-4 border-b pb-2"><i class="fas ${icon} mr-2"></i> ${cat}</h3>`;
+        
+        grouped[cat].forEach(q => {
+          // Identify Hospital Question to attach listener
+          if(q.text.includes("Hospital") || q.text.includes("Airport")) {
+            hospitalQ = q.id;
+          }
+
+          const qDiv = document.createElement('div');
+          qDiv.className = "mb-4 last:mb-0";
+          
+          let inputHtml = '';
+          if(q.type === 'Dropdown') {
+            const opts = q.options.split(',');
+            let optHtml = '<option value="">Select...</option>';
+            opts.forEach(o => optHtml += `<option>${o.trim()}</option>`);
+            inputHtml = `<select class="input-field q-input bg-gray-50" onchange="checkOther(this)">${optHtml}</select>`;
+          } else if (q.type === 'Rate') {
+            inputHtml = `<div class="flex items-center"><input type="number" min="1" max="5" class="input-field w-20 q-input mr-2" placeholder="1-5"> <span class="text-xs text-gray-400">Rate 1 to 5</span></div>`;
+          } else if (q.type === 'Checkbox') {
+            inputHtml = `<input type="checkbox" class="q-input w-5 h-5 accent-orange-600">`;
+          } else {
+            inputHtml = `<textarea class="input-field q-input h-20" placeholder="Type here..."></textarea>`;
+          }
+
+          qDiv.innerHTML = `
+            <label class="block text-sm font-semibold text-gray-700 mb-2">${q.text}</label>
+            ${inputHtml}
+            <textarea class="input-field mt-2 hidden other-text text-sm bg-orange-50 border-orange-200" placeholder="Please specify details..."></textarea>
+          `;
+          
+          // Data Attr
+          qDiv.dataset.id = q.id;
+          qDiv.dataset.category = cat;
+          qDiv.dataset.text = q.text;
+          qDiv.dataset.type = q.type;
+
+          // Add listener for Hospital
+          if(hospitalQ === q.id) {
+             const input = qDiv.querySelector('.q-input');
+             input.addEventListener('change', (e) => handleHospitalTrigger(e.target.value));
+          }
+
+          catDiv.appendChild(qDiv);
+        });
+        container.appendChild(catDiv);
+      }
+    }
+
+    function checkOther(select) {
+      const textArea = select.nextElementSibling;
+      if(select.value && select.value.includes('Others')) {
+        textArea.classList.remove('hidden');
+        textArea.focus();
+      } else {
+        textArea.classList.add('hidden');
+        textArea.value = '';
+      }
+    }
+
+    function handleHospitalTrigger(val) {
+      // If Yes, show extra questions
+      const section = document.getElementById('hospitalSection');
+      if(val.toLowerCase() === 'yes' || val.toLowerCase() === 'true') {
+        const extraQ = appData.questions.filter(q => q.isExtra);
+        if(extraQ.length > 0) {
+          renderExtraQuestions(extraQ);
+          section.classList.remove('hidden');
+        }
+      } else {
+        section.classList.add('hidden');
+        section.innerHTML = '';
+      }
+    }
+
+    function renderExtraQuestions(qs) {
+      const section = document.getElementById('hospitalSection');
+      section.innerHTML = '';
+      const catDiv = document.createElement('div');
+      catDiv.className = "bg-blue-50 p-5 rounded-lg border border-blue-200";
+      catDiv.innerHTML = `<h3 class="font-bold text-lg text-blue-600 mb-4"><i class="fas fa-hospital mr-2"></i> Specific Requirements</h3>`;
+      
+      qs.forEach(q => {
+         const qDiv = document.createElement('div');
+         const opts = q.options.split(',');
+         let optHtml = '<option value="">Select...</option>';
+         opts.forEach(o => optHtml += `<option>${o.trim()}</option>`);
+         
+         qDiv.innerHTML = `
+           <label class="block text-sm font-semibold text-gray-700 mb-2">${q.text}</label>
+           <select class="input-field q-input bg-white">${optHtml}</select>
+         `;
+         qDiv.dataset.id = q.id;
+         qDiv.dataset.category = q.category;
+         qDiv.dataset.text = q.text;
+         qDiv.dataset.type = q.type;
+         qDiv.dataset.isExtra = "true"; // Marker
+
+         catDiv.appendChild(qDiv);
+      });
+      section.appendChild(catDiv);
+    }
+
+    // --- Staff Logic ---
+    function toggleOtherText(chk) {
+      const txt = document.getElementById('staffOtherText');
+      if(chk.checked) { txt.classList.remove('hidden'); txt.focus(); }
+      else { txt.classList.add('hidden'); }
+    }
+
+    function addStaff() {
+      const id = document.getElementById('staffId').value;
+      const name = document.getElementById('staffName').value;
+      const chks = document.querySelectorAll('.violation-chk:checked');
+      const otherChk = document.getElementById('chkOther');
+      
+      let violations = Array.from(chks).map(c => c.value);
+      if(otherChk.checked) {
+        const txt = document.getElementById('staffOtherText').value;
+        if(txt) violations.push("Other: " + txt);
+      }
+
+      if(!id || !name) return Swal.fire('Missing Info', 'Please enter Staff ID and Name', 'warning');
+
+      staffData.push({id, name, violations});
+      renderStaffList();
+      
+      // Clear
+      document.getElementById('staffId').value = '';
+      document.getElementById('staffName').value = '';
+      document.querySelectorAll('.violation-chk').forEach(c => c.checked = false);
+      otherChk.checked = false;
+      document.getElementById('staffOtherText').classList.add('hidden');
+      document.getElementById('staffOtherText').value = '';
+    }
+
+    function renderStaffList() {
+      const ul = document.getElementById('staffList');
+      ul.innerHTML = '';
+      staffData.forEach((s, idx) => {
+        let badgeColor = s.violations.some(v => v.includes('Good')) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+        if(s.violations.length === 0) badgeColor = 'bg-gray-100 text-gray-800';
+
+        ul.innerHTML += `
+          <li class="flex justify-between items-center bg-white p-3 rounded border shadow-sm">
+            <div>
+              <span class="font-bold text-gray-700">${s.name}</span> <span class="text-xs text-gray-400">(${s.id})</span>
+              <div class="mt-1 flex flex-wrap gap-1">
+                 ${s.violations.map(v => `<span class="px-2 py-0.5 rounded text-xs ${badgeColor}">${v}</span>`).join('')}
+              </div>
+            </div>
+            <button onclick="removeStaff(${idx})" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
+          </li>`;
+      });
+    }
+
+    function removeStaff(idx) { staffData.splice(idx, 1); renderStaffList(); }
+
+    // --- Submission ---
+    function collectData() {
+      const answers = [];
+      // Main Questions
+      document.querySelectorAll('#questionsContainer > div > div').forEach(div => {
+         extractAnswer(div, answers);
+      });
+      // Extra Questions
+      const extraDivs = document.querySelectorAll('#hospitalSection > div > div');
+      if(!document.getElementById('hospitalSection').classList.contains('hidden')) {
+        extraDivs.forEach(div => extractAnswer(div, answers));
+      }
+
+      return {
+        date: document.getElementById('chkDate').value,
+        branch: document.getElementById('chkBranch').value,
+        supervisor: currentUser.name,
+        area: currentUser.area,
+        teamLeader: document.getElementById('chkTL').value,
+        userEmail: currentUser.email,
+        answers: answers,
+        staff: staffData
+      };
+    }
+
+    function extractAnswer(div, arr) {
+      if(!div.dataset.text) return; // Skip non-question divs
+      const input = div.querySelector('.q-input');
+      if(!input) return;
+
+      let val = "";
+      if(div.dataset.type === 'Checkbox') val = input.checked ? "Yes" : "No";
+      else val = input.value;
+
+      const otherInput = div.querySelector('.other-text');
+      if(otherInput && !otherInput.classList.contains('hidden') && otherInput.value) {
+        val = "Others: " + otherInput.value;
+      }
+      
+      arr.push({
+        id: div.dataset.id,
+        category: div.dataset.category,
+        question: div.dataset.text,
+        type: div.dataset.type,
+        answer: val
+      });
+    }
+
+    function submitReport() {
+      const data = collectData();
+      if(!data.branch || !data.teamLeader) return Swal.fire('Error', 'Please select Branch and Team Leader', 'error');
+
+      Swal.fire({
+        title: 'Submitting Report...',
+        html: 'Generating PDF and saving to Drive.',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+      
+      google.script.run.withSuccessHandler(res => {
+        Swal.close();
+        if(res.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Report Submitted!',
+            text: res.message,
+            footer: `<a href="${res.pdfUrl}" target="_blank" class="text-bon-orange">View PDF</a>`
+          });
+          // Reset
+          staffData = []; renderStaffList();
+          document.querySelectorAll('.q-input').forEach(i => i.value = '');
+          document.querySelectorAll('input[type=checkbox]').forEach(i => i.checked = false);
+        } else {
+          Swal.fire('Error', res.message, 'error');
+        }
+      }).submitReport(data);
+    }
+    
+    function generatePDFPreview() {
+      const data = collectData();
+      const w = window.open();
+      w.document.write(`<html><body style="font-family:sans-serif; padding:20px;">
+        <h1 style="color:#ff6600">Preview Mode</h1>
+        <hr>
+        <p><strong>Branch:</strong> ${data.branch} | <strong>TL:</strong> ${data.teamLeader}</p>
+        <h3>Staff:</h3>
+        <pre>${JSON.stringify(data.staff, null, 2)}</pre>
+        <h3>Answers:</h3>
+        <pre>${JSON.stringify(data.answers, null, 2)}</pre>
+      </body></html>`);
+    }
+
+    // --- Reports & Dashboard ---
+    function loadReports() {
+      google.script.run.withSuccessHandler(data => {
+        reportsData = data;
+        
+        // Populate Area Filter
+        const areas = [...new Set(data.map(d => d.area))];
+        const sel = document.getElementById('fltArea');
+        sel.innerHTML = '<option value="">All Areas</option>';
+        areas.forEach(a => sel.innerHTML += `<option>${a}</option>`);
+
+        // Populate Dashboard Branch Filter
+        const branches = [...new Set(data.map(d => d.branch))];
+        const dSel = document.getElementById('dashBranch');
+        dSel.innerHTML = '<option value="">All Branches</option>';
+        branches.forEach(b => dSel.innerHTML += `<option>${b}</option>`);
+
+        renderTable('statusTableBody', data);
+        renderTable('dashTableBody', data);
+        updateDashboard(data);
+        updateChart(data);
+
+      }).getReportData();
+    }
+
+    function renderTable(id, data) {
+      const tbody = document.getElementById(id);
+      tbody.innerHTML = '';
+      if(data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center">No reports found.</td></tr>';
+        return;
+      }
+      
+      data.forEach(r => {
+        const vClass = r.hygieneViolations === "Yes" ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800";
+        tbody.innerHTML += `
+          <tr class="hover:bg-gray-50 transition">
+            <td class="px-6 py-4">${r.date}</td>
+            <td class="px-6 py-4 font-medium text-gray-900">${r.branch}</td>
+            <td class="px-6 py-4">${r.tl}</td>
+            <td class="px-6 py-4 text-gray-500">${r.area}</td>
+            <td class="px-6 py-4 text-center"><span class="px-2 py-1 rounded text-xs font-bold ${vClass}">${r.hygieneViolations}</span></td>
+            <td class="px-6 py-4 text-center font-bold text-bon-orange">${r.rate}</td>
+          </tr>`;
+      });
+    }
+
+    function filterReports() {
+      const area = document.getElementById('fltArea').value;
+      const df = document.getElementById('fltDateFrom').value;
+      const dt = document.getElementById('fltDateTo').value;
+      const id = document.getElementById('fltID').value.toLowerCase();
+
+      const filtered = reportsData.filter(r => {
+        if(area && r.area !== area) return false;
+        if(df && r.date < df) return false;
+        if(dt && r.date > dt) return false;
+        if(id && !r.tl.toLowerCase().includes(id)) return false;
+        return true;
+      });
+
+      renderTable('statusTableBody', filtered);
+      updateChart(filtered);
+      
+      // Update Scorecard
+      const uniqueTLs = new Set(filtered.map(r=>r.tl)).size;
+      document.getElementById('tlCount').innerText = uniqueTLs;
+    }
+
+    function updateChart(data) {
+      const ctx = document.getElementById('rateChart').getContext('2d');
+      const counts = [0,0,0,0,0];
+      
+      data.forEach(r => {
+        const val = Math.round(parseFloat(r.rate));
+        if(val >=1 && val <=5) counts[val-1]++;
+      });
+
+      if(myChart) myChart.destroy();
+      myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+          datasets: [{
+            label: 'Report Counts',
+            data: counts,
+            backgroundColor: '#ff6600',
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, title: { display: true, text: 'Rating Distribution' } },
+          scales: { y: { beginAtZero: true, grid: { display: false } } }
+        }
+      });
+    }
+
+    function filterDashboard() {
+      const br = document.getElementById('dashBranch').value;
+      const filtered = br ? reportsData.filter(r => r.branch === br) : reportsData;
+      renderTable('dashTableBody', filtered);
+      updateDashboard(filtered);
+    }
+
+    function updateDashboard(data) {
+      document.getElementById('visitCount').innerText = data.length;
+      document.getElementById('uniqueBranchCount').innerText = new Set(data.map(r=>r.branch)).size;
+    }
+
+    function printFilteredReport() {
+      Swal.fire({
+        title: 'Send Report via Email',
+        input: 'email',
+        inputPlaceholder: 'recipient@bon.com.sa',
+        showCancelButton: true,
+        confirmButtonColor: '#ff6600',
+        confirmButtonText: 'Send PDF'
+      }).then(result => {
+        if(result.isConfirmed && result.value) {
+           Swal.showLoading();
+           const html = `
+             <h1 style="color:#ff6600">Team Leader Status Report</h1>
+             <p>Generated on: ${new Date().toLocaleString()}</p>
+             ${document.querySelector('#statusTableBody').parentElement.outerHTML}
+           `;
+           google.script.run.withSuccessHandler(() => Swal.fire('Sent!', 'Report emailed successfully', 'success'))
+             .sendFilteredReport(result.value, html);
+        }
+      });
+    }
+
+  </script>
+</body>
+</html>
